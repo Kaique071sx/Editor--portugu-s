@@ -1,52 +1,21 @@
-name: Build APK with Portuguese Translation
+name: Deploy to VPS
+
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout original repository
-        uses: actions/checkout@v4
+      - name: Execute SSH commands
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          repository: Visual-Code-Space/Visual-Code-Space
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'platforms;android-34 build-tools;34.0.0'
-
-      - name: Create Portuguese strings.xml
-        run: |
-          mkdir -p core/resources/src/main/res/values-pt
-          cat > core/resources/src/main/res/values-pt/strings.xml << 'EOF'
-          <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-          <!-- [CONTEÚDO PORTUGUÊS COMPLETO AQUI - 343 STRINGS] -->
-          </resources>
-          EOF
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon
-
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: app/build/outputs/apk/debug/*.apk
-          tag_name: v1.0.0-portuguese
-          release_name: Visual Code Space - Edição Portuguesa
-          body: |
-            # 🇧🇷 Visual Code Space - Edição em Português
-            APK compilado com interface 100% em português (Brasil)
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script: |
+            echo "Connected to VPS"
+            whoami
+            pwd
