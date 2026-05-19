@@ -9,22 +9,18 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Visual-Code-Space/Visual-Code-Space
+          
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
+          
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-34 build-tools;34.0.0'
-      - name: Fix BeanShell dependency
-        run: |
-          # Adiciona repositório snapshot do Sonatype
-          echo "allprojects { repositories { maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' } } }" >> build.gradle.kts
-          # Substitui a dependência problemática
-          sed -i 's/bsh = "3.0.0-SNAPSHOT"/bsh = "3.0.0"/g' gradle/libs.versions.toml
-          sed -i 's/bsh = { module = "org.beanshell:bsh"/bsh = { module = "org.beanshell:beanshell"/g' gradle/libs.versions.toml
+          
       - name: Create Portuguese strings.xml
         run: |
           mkdir -p core/resources/src/main/res/values-pt
@@ -115,7 +111,7 @@ jobs:
           <string name="file_reload">Recarregar arquivo</string>
           <string name="file_reload_unsaved_message">O arquivo ainda não foi salvo. Deseja recarregá-lo mesmo assim?</string>
           <string name="file_storage_access">Acesso ao armazenamento</string>
-          <string name="file_storage_access_message">O Visual Code Space precisa de acesso ao armazenamento para funcionar corretamente.\n\nPor que devo conceder permissão de armazenamento?\nEssa permissão é necessária para criar, excluir e salvar arquivos.</string>
+          <string name="file_storage_access_message">O Visual Code Space precisa de acesso ao armazenamento para funcionar corretamente.\n\nPor que devo conceder permissão de armazenamento?\nEssa permissão permite que o aplicativo leia e escreva arquivos no seu dispositivo.</string>
           <string name="file_storage_access_grant">Conceder permissão</string>
           <string name="terminal">Terminal</string>
           <string name="pref_category_configure">Configurar</string>
@@ -335,9 +331,9 @@ jobs:
           <string name="code_explanation">Explicação do código</string>
           <string name="explain_code_msg">Explique o seguinte código em termos simples:\n\n%1$s\n</string>
           <string name="import_components">Importar componentes</string>
-          <string name="import_compose_components_msg">Forneça as importações necessárias do Jetpack Compose para o seguinte trecho de código, garantindo que todos os componentes necessários estejam incluídos (forneça apenas o código):\n\n%1$s\n</string>
-          <string name="caution_code_explanation">**Cuidado:** A explicação fornecida pela IA pode nem sempre ser precisa ou completa. Revise a explicação cuidadosamente e use-a como ponto de partida para seu entendimento.</string>
-          <string name="caution_import_compose_components">**Cuidado:** As importações fornecidas pela IA podem nem sempre ser precisas ou completas. Revise as sugestões cuidadosamente antes de aplicá-las ao seu código.</string>
+          <string name="import_compose_components_msg">Forneça as importações necessárias do Jetpack Compose para o seguinte trecho de código, garantindo que todos os componentes necessários estejam incluídos.</string>
+          <string name="caution_code_explanation">**Cuidado:** A explicação fornecida pela IA pode nem sempre ser precisa ou completa. Revise a explicação cuidadosamente e use-a como ponto de partida para pesquisa adicional.</string>
+          <string name="caution_import_compose_components">**Cuidado:** As importações fornecidas pela IA podem nem sempre ser precisas ou completas. Revise as sugestões cuidadosamente antes de aplicá-las ao seu projeto.</string>
           <string name="generate_code">Gerar código</string>
           <string name="generate">Gerar</string>
           <string name="enter_prompt">Digite um prompt</string>
@@ -346,10 +342,13 @@ jobs:
           <string name="open_source_licences">Licenças de código aberto</string>
           </resources>
           EOF
+          
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+        
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon
+        
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
