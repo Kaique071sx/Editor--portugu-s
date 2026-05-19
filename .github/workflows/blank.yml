@@ -18,6 +18,13 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-34 build-tools;34.0.0'
+      - name: Fix BeanShell dependency
+        run: |
+          # Adiciona repositório snapshot do Sonatype
+          echo "allprojects { repositories { maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' } } }" >> build.gradle.kts
+          # Substitui a dependência problemática
+          sed -i 's/bsh = "3.0.0-SNAPSHOT"/bsh = "3.0.0"/g' gradle/libs.versions.toml
+          sed -i 's/bsh = { module = "org.beanshell:bsh"/bsh = { module = "org.beanshell:beanshell"/g' gradle/libs.versions.toml
       - name: Create Portuguese strings.xml
         run: |
           mkdir -p core/resources/src/main/res/values-pt
